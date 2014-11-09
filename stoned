@@ -24,20 +24,20 @@
 # source function library.
 . /etc/init.d/functions
 
-RETVAL=0
 prog=stone
 lockfile=/var/lock/subsys/$prog
+PIDFILE=/var/run/${prog}.pid
 STONE_BIN="/usr/bin/$prog"
 STONE_CONF="/etc/${prog}d.conf"
-STONE_CHROOT=/var/chroot/stoned
-STONE_OPTS="-l -C $STONE_CONF -o stoned -g stoned -t $STONE_CHROOT"
-PIDFILE=/var/run/${prog}.pid
+STONE_CHROOT="-o stoned -g stoned -t /var/chroot/stoned"
+
+RETVAL=0
 
 start()
 {
   [ "$EUID" != "0" ] && exit 4
   echo -n $"Starting $prog: "
-  daemon $STONE_BIN $STONE_OPTS -D -i $PIDFILE
+  daemon $STONE_BIN -D -l -i $PIDFILE -C $STONE_CONF $STONE_CHROOT
   RETVAL=$?
   echo
   [ $RETVAL -eq 0 ] && touch $lockfile
